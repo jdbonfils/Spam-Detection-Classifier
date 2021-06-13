@@ -1,0 +1,7 @@
+#Prend par défaut toutes les lignes du fichier d'entrainement
+
+python3 bayes.py nbLigne
+
+20 < nbLigne  
+
+
