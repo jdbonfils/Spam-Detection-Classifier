@@ -1,12 +1,12 @@
-
 import numpy as np # linear algebra
 import keras
 from tensorflow import keras
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten, Activation, Conv2D
+from keras.layers import Dense, Dropout, Flatten, Activation
 import math
 from keras import backend as K
 import matplotlib.pyplot as plt
+
 #Fonction permettant d'extraire les donnes de puis un fichier CSV
 def getXYData(fic,max_col=-1,max_lines=-1,indLabel=0,delimiter=";"):
 	Y = []
@@ -20,7 +20,7 @@ def getXYData(fic,max_col=-1,max_lines=-1,indLabel=0,delimiter=";"):
 		return None,None
 	if(indLabel == 0 and max_col != -1):
 		max_col += 1
-
+		
 	#Verification des parametres
 	if(max_lines>len(lines) or max_lines == -1 ):
 		max_lines = len(lines)
@@ -52,9 +52,9 @@ def binary_crossentropy(y_true, y_pred):
     return -K.mean(true + false, axis=1)
 
 if __name__ == "__main__":
-
+	
 	#Nombre d'époque à modifier en fonction du contexte
-	epochs = 250
+	epochs = 100
 
 	#indLabel permet de specifier la colonne corespondant au label
 	#max lines le nombre de lignes à prendre en compte 
@@ -69,36 +69,30 @@ if __name__ == "__main__":
 	X_pred,Y_pred = getXYData("donnees/dataPred.csv",indLabel=57,max_col=nbColonnes,delimiter=";")
 
 	#On convertie les labels au format One Hot -> Yes: [0,1], No,[1,0] outputshape doit donc etre de la forme (N,2)
-	Y_train = keras.utils.to_categorical(Y_train, 2)
 	#Et les liste en numyp array
+	Y_train = keras.utils.to_categorical(Y_train, 2)
 	X_train = np.array(X_train)
-	#On peut si on le souhaite normaliser la moyenne à 0
-	#X_train /= np.max(np.abs(X_train),axis=0)
-
 
 	Y_test = keras.utils.to_categorical(Y_test, 2)
 	X_test = np.array(X_test)
-	#On peut si on le souhaite normaliser la moyenne à 0
-	#X_test /= np.max(np.abs(X_test),axis=0)
 
 	model = Sequential()
-
-	#Modele avec couche cachée 
+	#Modele sans couche cachée avec seulement la fonction d'activation sigmoid
 	#Input=dim = 57 ccorrespond à l'input shape qui correspond aux nombres d'attributs dans le fichier csv
-	model.add(Dense(180, input_dim=nbColonnes,activation='tanh'))
+	model.add(Dense(32, input_dim=nbColonnes,activation='tanh'))
 	model.add(Dense(2, activation='sigmoid'))
 	#Output shape doit etre de taille 2 pour correspondre à une classification binaire avec le format One Hot
 
 	#Compilation du modele en utilisant BinaryCrossentropy (recommandé pour une classification binaire)
-	model.compile(optimizer=keras.optimizers.Adam(), loss='binary_crossentropy', metrics=['accuracy'])
+	model.compile(optimizer=keras.optimizers.Adam(), loss="binary_crossentropy", metrics=['accuracy'])
 
 	#Entrainement du modèle
-	historique =  model.fit(X_train, Y_train,epochs=epochs,verbose=1,validation_data=(X_test,Y_test))
+	historique = model.fit(X_train, Y_train,epochs=epochs,verbose=1,validation_data=(X_test,Y_test))
 
 	#Affiche le résume du reseau de neuronnes
 	model.summary()
 	score = model.evaluate(X_train, Y_train, verbose=0)
-	#Affichage des stats
+
 	print("Evaluation terminée : \n")
 	print('Test loss:', score[0])
 	print('Test accuracy:', score[1])
@@ -106,7 +100,7 @@ if __name__ == "__main__":
 	#Affichage du taux de loss grace à un graphique
 	statEpoque = historique.history
 	choix = input("\n Voulez vous afficher le graphique résumant le loss en fonction des époques ? Y/N : ")
-	if(choix == "Y" or choix == "y"):	
+	if(choix == "Y" or choix == "y"):
 		loss = np.array(statEpoque['loss'])
 		valLoss = np.array(statEpoque['val_loss'])
 		ep = range(0,epochs)
@@ -119,7 +113,6 @@ if __name__ == "__main__":
 		plt.ylabel('Loss')
 		plt.legend()
 		plt.show()
-		
 	#Affichage du taux de l'accuracy grace à un graphique
 	choix = input("\n Voulez vous afficher le graphique résumant l'accuracy en fonction des époques ? Y/N : ")
 	if(choix == "Y" or choix == "y"):
@@ -138,7 +131,7 @@ if __name__ == "__main__":
 
 	input("\n Apuyer sur entré pour passer à la phase de prédiction...")
 
-	#Une fois que l'entrainement est terminé, on essaie de prédire les valeur
+	#Une fois que l'entrainement est terminé, on essaie de prédire les valeurs
 	guesses = model.predict_classes(np.array(X_pred))
 
 	ok = 0 

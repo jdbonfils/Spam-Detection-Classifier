@@ -54,7 +54,7 @@ def binary_crossentropy(y_true, y_pred):
 if __name__ == "__main__":
 	
 	#Nombre d'époque à modifier en fonction du contexte
-	epochs = 250
+	epochs = 100
 
 	#indLabel permet de specifier la colonne corespondant au label
 	#max lines le nombre de lignes à prendre en compte 
